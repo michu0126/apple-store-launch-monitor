@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+dashboard.sqlite3
+data/
+chromium-profile/
+runtime/
+.env

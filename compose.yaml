@@ -1,0 +1,29 @@
+services:
+  firefox:
+    image: selenium/standalone-firefox:latest
+    shm_size: 2gb
+    environment:
+      SE_NODE_MAX_SESSIONS: "1"
+      SE_NODE_SESSION_TIMEOUT: "86400"
+      SE_VNC_NO_PASSWORD: "1"
+    ports:
+      - "127.0.0.1:7900:7900"
+    restart: unless-stopped
+
+  app:
+    build: .
+    image: ${MONITOR_IMAGE:-apple-store-launch-monitor:local}
+    depends_on:
+      firefox:
+        condition: service_healthy
+    environment:
+      DB_PATH: /data/dashboard.sqlite3
+      WEBDRIVER_URL: http://firefox:4444/wd/hub
+    volumes:
+      - monitor_data:/data
+    ports:
+      - "127.0.0.1:8765:8765"
+    restart: unless-stopped
+
+volumes:
+  monitor_data:

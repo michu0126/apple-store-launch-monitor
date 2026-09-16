@@ -1,0 +1,9 @@
+.git
+.github
+__pycache__
+*.pyc
+dashboard.sqlite3
+runtime
+chromium-profile
+extension
+data
