@@ -34,7 +34,7 @@ docker compose up -d --build
 预构建应用镜像可通过环境变量使用：
 
 ```powershell
-$env:MONITOR_IMAGE='DOCKERHUB_USER/apple-store-launch-monitor:latest'
+$env:MONITOR_IMAGE='michu0126/apple-store-launch-monitor:latest'
 docker compose pull app
 docker compose up -d
 ```
