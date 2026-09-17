@@ -12,7 +12,6 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent
 DB = Path(os.environ.get('DB_PATH', ROOT / 'dashboard.sqlite3'))
-ORIGIN = 'http://127.0.0.1:8765'
 TOKEN = secrets.token_urlsafe(32)
 LAUNCH_DATE = '2026/09/18'
 CATALOG = json.loads((ROOT / 'catalog.json').read_text(encoding='utf-8'))
@@ -156,7 +155,26 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def valid_host(self):
-        return self.headers.get('Host') in {'127.0.0.1:8765', 'localhost:8765', 'app:8765'}
+        host = self.headers.get('Host', '').strip()
+        try:
+            parsed = urlsplit('http://' + host)
+            port = parsed.port
+        except ValueError:
+            return False
+        return bool(parsed.hostname) and parsed.username is None and parsed.password is None and \
+            not parsed.path and not parsed.query and not parsed.fragment and \
+            (port is None or 1 <= port <= 65535)
+
+    def valid_origin(self):
+        if not self.valid_host():
+            return False
+        origin = self.headers.get('Origin', '')
+        try:
+            parsed = urlsplit(origin)
+        except ValueError:
+            return False
+        return parsed.scheme in {'http', 'https'} and parsed.netloc.lower() == self.headers.get('Host', '').lower() and \
+            not parsed.path.rstrip('/') and not parsed.query and not parsed.fragment
 
     def do_GET(self):
         if not self.valid_host():
@@ -173,7 +191,7 @@ class Handler(BaseHTTPRequestHandler):
         return self.reply(404, {'error': 'Not found'})
 
     def do_POST(self):
-        if (not self.valid_host() or self.headers.get('Origin') != ORIGIN or
+        if (not self.valid_origin() or
                 self.headers.get('X-Session-Token') != TOKEN or
                 not self.headers.get('Content-Type', '').startswith('application/json')):
             return self.reply(403, {'error': '请求验证失败，请从本机监控页面操作。'})
@@ -210,5 +228,5 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     initialize()
-    print('Apple dashboard: ' + ORIGIN, flush=True)
+    print('Apple dashboard: http://127.0.0.1:8765', flush=True)
     ThreadingHTTPServer((os.environ.get('MONITOR_BIND', '127.0.0.1'), 8765), Handler).serve_forever()
