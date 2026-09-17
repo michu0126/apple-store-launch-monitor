@@ -14,8 +14,7 @@ services:
     build: .
     image: ${MONITOR_IMAGE:-apple-store-launch-monitor:local}
     depends_on:
-      firefox:
-        condition: service_healthy
+      - firefox
     environment:
       DB_PATH: /data/dashboard.sqlite3
       WEBDRIVER_URL: http://firefox:4444/wd/hub
