@@ -70,7 +70,11 @@ class Monitor:
             self.driver.execute_script('window.stop()')
         WebDriverWait(self.driver, 15).until(lambda d: d.execute_script('return document.readyState') in ('interactive', 'complete'))
 
+    def checkpoint(self):
+        pass
+
     def text_button(self, pattern, root=None):
+        self.checkpoint()
         root = root or self.driver
         for button in root.find_elements(By.CSS_SELECTOR, 'button'):
             try:
@@ -111,6 +115,7 @@ class Monitor:
         """, element)
 
     def read_stores(self, dialog):
+        self.checkpoint()
         time.sleep(.7)
         radios = dialog.find_elements(By.CSS_SELECTOR, '[role="radio"],input[type="radio"]')
         if not any('Apple ' in self.radio_text(row) for row in radios):
@@ -136,6 +141,7 @@ class Monitor:
 
     def scan(self, product):
         self.navigate(product['url'])
+        self.checkpoint()
         body = self.driver.find_element(By.TAG_NAME, 'body').text
         if re.search(r'Page Not Found|页面未找到|无法访问此网站', body):
             raise RuntimeError('Apple 拒绝了本次查询')

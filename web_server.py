@@ -179,6 +179,9 @@ class Handler(BaseHTTPRequestHandler):
         if not self.valid_host():
             return False
         origin = self.headers.get('Origin', '')
+        if not origin:
+            referer = urlsplit(self.headers.get('Referer', ''))
+            origin = referer.scheme + '://' + referer.netloc
         try:
             parsed = urlsplit(origin)
         except ValueError:
@@ -202,7 +205,6 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if (not self.valid_origin() or
-                self.headers.get('X-Session-Token') != TOKEN or
                 not self.headers.get('Content-Type', '').startswith('application/json')):
             return self.reply(403, {'error': '请求验证失败，请从本机监控页面操作。'})
         try:
@@ -223,6 +225,7 @@ class Handler(BaseHTTPRequestHandler):
                 set_state('refresh_requested', time.time())
                 return self.reply(200, {'ok': True, 'message': '已请求执行器优先检查；不会把旧数据更新成新库存。'})
             if self.path == '/api/account':
+                set_state('monitoring', False)
                 set_state('account_requested', time.time())
                 return self.reply(200, {'ok': True})
             if self.path == '/api/cancel':

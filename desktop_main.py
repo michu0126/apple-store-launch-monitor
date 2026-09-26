@@ -112,13 +112,28 @@ def main():
                 from selenium.webdriver.chrome.service import Service as ChromeService
                 from selenium.webdriver.edge.service import Service as EdgeService
                 from container_worker import Monitor
+                import container_worker
+                container_worker.CHUNK = 1
                 from web_server import Handler, ThreadingHTTPServer, initialize, set_state, worker_action
 
                 class DesktopMonitor(Monitor):
-                    def scan(self, product):
+                    scanning = False
+
+                    def checkpoint(self):
                         if stop.is_set():
                             raise RuntimeError('程序正在退出')
-                        return super().scan(product)
+                        if self.scanning:
+                            state = worker_action({'action': 'status'})['state']
+                            if not state.get('monitoring', False):
+                                raise RuntimeError('监控已暂停')
+
+                    def scan(self, product):
+                        self.scanning = True
+                        try:
+                            self.checkpoint()
+                            return super().scan(product)
+                        finally:
+                            self.scanning = False
 
                     def connect(self):
                         if stop.is_set():
@@ -143,26 +158,41 @@ def main():
                         service.creation_flags = 0x08000000
                         factory = webdriver.Edge if browser_name == 'Edge' else webdriver.Chrome
                         self.driver = factory(options=options, service=service)
-                        self.driver.set_page_load_timeout(35)
+                        self.driver.set_page_load_timeout(12)
                         self.monitor_handle = self.driver.current_window_handle
+                        events.put(('status', browser_name + ' 已连接，正在监控。'))
 
                 initialize()
                 set_state('worker_seen', 0)
                 set_state('desktop_browser', browser_name)
+                set_state('monitoring', False)
+                runtime['set_state'] = set_state
+                runtime['worker_action'] = worker_action
                 server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
                 runtime['url'] = 'http://127.0.0.1:' + str(server.server_address[1])
                 threading.Thread(target=server.serve_forever, daemon=True).start()
                 events.put(('ready', runtime['url']))
                 monitor = DesktopMonitor()
+                runtime['monitor'] = monitor
+                monitor.connect()
+                set_state('monitoring', True)
+                next_scan = 0
                 while not stop.is_set():
-                    started = time.monotonic()
                     try:
-                        monitor.cycle()
+                        state = worker_action({'action': 'status'})
+                        monitor.open_account(state['state'])
+                        if monitor.handle_job(state):
+                            set_state('monitoring', False)
+                        elif not state['state'].get('monitoring', True):
+                            worker_action({'action': 'heartbeat', 'message': '监控已暂停，可以在浏览器中登录或操作。'})
+                        elif time.monotonic() >= next_scan:
+                            monitor.cycle()
+                            next_scan = time.monotonic() + 8
                     except Exception as error:
                         logging.exception('Browser monitoring failed')
                         worker_action({'action': 'heartbeat', 'message': '本机浏览器连接或检查失败：' + str(error)[:300]})
                         events.put(('status', '浏览器启动或检查失败，详见监控页面及 desktop.log。'))
-                    stop.wait(max(5, 60 - (time.monotonic() - started)))
+                    stop.wait(.5)
             except Exception as error:
                 logging.exception('Desktop startup failed')
                 events.put(('error', str(error)))
@@ -183,6 +213,12 @@ def main():
     start_button.pack(side='left')
     open_button = ttk.Button(buttons, text='打开监控页面', state='disabled', command=lambda: webbrowser.open(runtime['url']))
     open_button.pack(side='left', padx=10)
+    def toggle_monitor():
+        if runtime.get('set_state'):
+            state = runtime['worker_action']({'action': 'status'})['state']
+            runtime['set_state']('monitoring', not state.get('monitoring', False))
+    pause_button = ttk.Button(buttons, text='暂停监控', state='disabled', command=toggle_monitor)
+    pause_button.pack(side='left', padx=5)
     ttk.Button(buttons, text='打开数据与日志目录', command=lambda: os.startfile(DATA)).pack(side='left')
     ttk.Label(panel, text='请保持本程序运行。Apple 登录使用独立浏览器窗口，不读取日常浏览器资料。\n关闭窗口将停止监控；登录配置与监控数据保存在本机。', wraplength=560).pack(anchor='w', pady=18)
 
@@ -194,6 +230,11 @@ def main():
             root.destroy()
 
     def poll():
+        if runtime.get('worker_action') and not stop.is_set():
+            state = runtime['worker_action']({'action': 'status'})['state']
+            pause_button.config(state='normal', text='暂停监控' if state.get('monitoring') else '继续监控')
+            if state.get('worker_seen', 0):
+                status.set(state.get('worker_message', ''))
         try:
             while True:
                 kind, value = events.get_nowait()
