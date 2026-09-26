@@ -49,7 +49,7 @@ def main():
         ctypes.windll.user32.MessageBoxW(None, '监控程序已经运行，请使用已打开的窗口。', 'Apple 门店监控', 0)
         return
     root = tk.Tk()
-    root.title('Apple 上海门店监控')
+    root.title('Apple 全国门店监控')
     root.geometry('620x370')
     root.minsize(620, 370)
     available = browsers()
@@ -63,7 +63,7 @@ def main():
         settings = {}
     panel = ttk.Frame(root, padding=24)
     panel.pack(fill='both', expand=True)
-    ttk.Label(panel, text='Apple 上海直营店监控', font=('Microsoft YaHei UI', 18)).pack(anchor='w')
+    ttk.Label(panel, text='Apple 全国直营店监控', font=('Microsoft YaHei UI', 18)).pack(anchor='w')
     ttk.Label(panel, text='使用电脑已安装的浏览器 · 确认后准备购物袋 · 手动提交和付款').pack(anchor='w', pady=(8, 18))
     row = ttk.Frame(panel)
     row.pack(fill='x')

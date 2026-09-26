@@ -1,0 +1,394 @@
+[
+  {
+    "city": "上海",
+    "name": "环球港",
+    "id": "R683",
+    "url": "https://www.apple.com.cn/retail/globalharbor/",
+    "address": "上海市普陀区中山北路 3300 号 400-617-1335",
+    "district": "普陀区"
+  },
+  {
+    "city": "上海",
+    "name": "香港广场",
+    "id": "R390",
+    "url": "https://www.apple.com.cn/retail/hongkongplaza/",
+    "address": "上海市黄浦区淮海中路 282 号 香港广场北座 400-617-1312",
+    "district": "黄浦区"
+  },
+  {
+    "city": "上海",
+    "name": "五角场",
+    "id": "R581",
+    "url": "https://www.apple.com.cn/retail/wujiaochang/",
+    "address": "上海市杨浦区翔殷路 1099 号 上海合生汇 400-613-9771",
+    "district": "杨浦区"
+  },
+  {
+    "city": "上海",
+    "name": "上海环贸 iapm",
+    "id": "R401",
+    "url": "https://www.apple.com.cn/retail/shanghaiiapm/",
+    "address": "上海市徐汇区淮海中路 999 号 环贸 iapm 商场 400-617-1324",
+    "district": "徐汇区"
+  },
+  {
+    "city": "上海",
+    "name": "浦东",
+    "id": "R389",
+    "url": "https://www.apple.com.cn/retail/pudong/",
+    "address": "上海市浦东新区陆家嘴世纪大道 8 号 上海国金中心 IFC 商场 LG2－27 号店铺 400-617-1305",
+    "district": "浦东新区"
+  },
+  {
+    "city": "上海",
+    "name": "静安",
+    "id": "R678",
+    "url": "https://www.apple.com.cn/retail/jingan/",
+    "address": "上海市静安区南京西路 1699 号 400-000-3235",
+    "district": "静安区"
+  },
+  {
+    "city": "上海",
+    "name": "南京东路",
+    "id": "R359",
+    "url": "https://www.apple.com.cn/retail/nanjingeast/",
+    "address": "上海市黄浦区南京东路 300 号 400-663-9988",
+    "district": "黄浦区"
+  },
+  {
+    "city": "上海",
+    "name": "七宝",
+    "id": "R705",
+    "url": "https://www.apple.com.cn/retail/qibao/",
+    "address": "上海市闵行区漕宝路 3366 号  七宝领展广场 400-613-9773",
+    "district": "闵行区"
+  },
+  {
+    "city": "昆明",
+    "name": "昆明",
+    "id": "R670",
+    "url": "https://www.apple.com.cn/retail/kunming/",
+    "address": "昆明市五华区东风西路 11 号  顺城购物中心 400-639-3602",
+    "district": "五华区"
+  },
+  {
+    "city": "北京",
+    "name": "西单大悦城",
+    "id": "R388",
+    "url": "https://www.apple.com.cn/retail/xidanjoycity/",
+    "address": "北京市西城区西单北大街 131 号大悦城 400-617-1204",
+    "district": "西城区"
+  },
+  {
+    "city": "北京",
+    "name": "北京荟聚",
+    "id": "R792",
+    "url": "https://www.apple.com.cn/retail/livatbeijing/",
+    "address": "北京市大兴区欣宁街 15 号 北京荟聚 1 层 400-009-6560",
+    "district": "大兴区"
+  },
+  {
+    "city": "北京",
+    "name": "朝阳大悦城",
+    "id": "R645",
+    "url": "https://www.apple.com.cn/retail/chaoyangjoycity/",
+    "address": "北京市朝阳区朝阳北路 101 号 400-617-1284",
+    "district": "朝阳区"
+  },
+  {
+    "city": "北京",
+    "name": "王府井",
+    "id": "R448",
+    "url": "https://www.apple.com.cn/retail/wangfujing/",
+    "address": "北京市东城区王府井大街 138 号北京 apm 400-617-1205",
+    "district": "东城区"
+  },
+  {
+    "city": "北京",
+    "name": "华贸购物中心",
+    "id": "R479",
+    "url": "https://www.apple.com.cn/retail/chinacentralmall/",
+    "address": "北京市朝阳区建国路 81 号华贸购物中心 400-617-1210",
+    "district": "朝阳区"
+  },
+  {
+    "city": "北京",
+    "name": "三里屯",
+    "id": "R320",
+    "url": "https://www.apple.com.cn/retail/sanlitun/",
+    "address": "北京市朝阳区三里屯路 19 号院 三里屯太古里南区 7 号楼 400-617-1363",
+    "district": "朝阳区"
+  },
+  {
+    "city": "成都",
+    "name": "成都万象城",
+    "id": "R502",
+    "url": "https://www.apple.com.cn/retail/mixcchengdu/",
+    "address": "成都市成华区双庆路 8 号万象城 400-617-1214",
+    "district": "成华区"
+  },
+  {
+    "city": "成都",
+    "name": "成都太古里",
+    "id": "R580",
+    "url": "https://www.apple.com.cn/retail/taikoolichengdu/",
+    "address": "成都市锦江区中纱帽街 8 号 400-617-1275",
+    "district": "锦江区"
+  },
+  {
+    "city": "天津",
+    "name": "天津大悦城",
+    "id": "R637",
+    "url": "https://www.apple.com.cn/retail/tianjinjoycity/",
+    "address": "天津市南开区南门外大街 2 号 400-617-1262",
+    "district": "南开区"
+  },
+  {
+    "city": "天津",
+    "name": "天津万象城",
+    "id": "R638",
+    "url": "https://www.apple.com.cn/retail/mixctianjin/",
+    "address": "天津市河西区乐园道 9 号 400-613-9745",
+    "district": "河西区"
+  },
+  {
+    "city": "天津",
+    "name": "天津恒隆广场",
+    "id": "R579",
+    "url": "https://www.apple.com.cn/retail/riverside66tianjin/",
+    "address": "天津市和平区兴安路 166 号 400-613-9744",
+    "district": "和平区"
+  },
+  {
+    "city": "合肥",
+    "name": "合肥万象城",
+    "id": "R765",
+    "url": "https://www.apple.com.cn/retail/mixchefei/",
+    "address": "合肥市蜀山区潜山路 111 号 合肥万象城商场一层 400-000-5292",
+    "district": "蜀山区"
+  },
+  {
+    "city": "济南",
+    "name": "济南恒隆广场",
+    "id": "R648",
+    "url": "https://www.apple.com.cn/retail/parc66jinan/",
+    "address": "济南市历下区泉城路 188 号 400-613-9743",
+    "district": "历下区"
+  },
+  {
+    "city": "青岛",
+    "name": "青岛万象城",
+    "id": "R557",
+    "url": "https://www.apple.com.cn/retail/mixcqingdao/",
+    "address": "青岛市市南区山东路 6A 号 400-617-1285",
+    "district": "市南区"
+  },
+  {
+    "city": "广州",
+    "name": "珠江新城",
+    "id": "R639",
+    "url": "https://www.apple.com.cn/retail/zhujiangnewtown/",
+    "address": "广州珠江新城兴民路 222 号 天汇广场 1 层 400-639-3601",
+    "district": ""
+  },
+  {
+    "city": "广州",
+    "name": "天环广场",
+    "id": "R577",
+    "url": "https://www.apple.com.cn/retail/parccentral/",
+    "address": "广州市天河区天河路 218 号 400-613-9742",
+    "district": "天河区"
+  },
+  {
+    "city": "深圳",
+    "name": "深圳万象城",
+    "id": "R761",
+    "url": "https://www.apple.com.cn/retail/mixcshenzhen/",
+    "address": "深圳市罗湖区宝安南路 1881 号 深圳万象城（一期）B1 层 400-050-1588",
+    "district": "罗湖区"
+  },
+  {
+    "city": "深圳",
+    "name": "深圳益田假日广场",
+    "id": "R484",
+    "url": "https://www.apple.com.cn/retail/holidayplazashenzhen/",
+    "address": "深圳市南山区深南大道 9028 号益田假日广场 400-617-1254",
+    "district": "南山区"
+  },
+  {
+    "city": "深圳",
+    "name": "前海壹方城",
+    "id": "R793",
+    "url": "https://www.apple.com.cn/retail/uniwalkqianhai/",
+    "address": "深圳市宝安区新湖路 99 号 前海壹方城 L1 层 400-002-7805",
+    "district": "宝安区"
+  },
+  {
+    "city": "南宁",
+    "name": "南宁万象城",
+    "id": "R571",
+    "url": "https://www.apple.com.cn/retail/mixcnanning/",
+    "address": "南宁市青秀区民族大道 136 号 400-617-1265",
+    "district": "青秀区"
+  },
+  {
+    "city": "南京",
+    "name": "虹悦城",
+    "id": "R643",
+    "url": "https://www.apple.com.cn/retail/wondercity/",
+    "address": "南京市雨花台区应天大街 619 号 400-617-1332",
+    "district": "雨花台区"
+  },
+  {
+    "city": "南京",
+    "name": "新街口",
+    "id": "R493",
+    "url": "https://www.apple.com.cn/retail/xinjiekou/",
+    "address": "南京市玄武区中山路 100 号 400-617-1334",
+    "district": "玄武区"
+  },
+  {
+    "city": "南京",
+    "name": "玄武湖",
+    "id": "R703",
+    "url": "https://www.apple.com.cn/retail/xuanwulake/",
+    "address": "南京市鼓楼区中央路 201 号 400-613-9772",
+    "district": "鼓楼区"
+  },
+  {
+    "city": "无锡",
+    "name": "无锡恒隆广场",
+    "id": "R574",
+    "url": "https://www.apple.com.cn/retail/center66wuxi/",
+    "address": "无锡市梁溪区 人民中路 139 号 400-617-1325",
+    "district": "梁溪区"
+  },
+  {
+    "city": "苏州",
+    "name": "苏州",
+    "id": "R688",
+    "url": "https://www.apple.com.cn/retail/suzhou/",
+    "address": "苏州市苏州工业园区 苏州中心商场 400-613-9775",
+    "district": "苏州工业园区"
+  },
+  {
+    "city": "郑州",
+    "name": "郑州万象城",
+    "id": "R572",
+    "url": "https://www.apple.com.cn/retail/mixczhengzhou/",
+    "address": "郑州市二七区民主路 10 号 400-617-1264",
+    "district": "二七区"
+  },
+  {
+    "city": "宁波",
+    "name": "天一广场",
+    "id": "R531",
+    "url": "https://www.apple.com.cn/retail/tianyisquare/",
+    "address": "宁波市海曙区碶闸街 155 号 天一广场 400-613-9774",
+    "district": "海曙区"
+  },
+  {
+    "city": "杭州",
+    "name": "西湖",
+    "id": "R471",
+    "url": "https://www.apple.com.cn/retail/westlake/",
+    "address": "杭州市上城区平海路 100 号 400-617-1302",
+    "district": "上城区"
+  },
+  {
+    "city": "杭州",
+    "name": "杭州万象城",
+    "id": "R532",
+    "url": "https://www.apple.com.cn/retail/mixchangzhou/",
+    "address": "杭州市上城区富春路 701 号 400-617-1304",
+    "district": "上城区"
+  },
+  {
+    "city": "温州",
+    "name": "温州万象城",
+    "id": "R766",
+    "url": "https://www.apple.com.cn/retail/mixcwenzhou/",
+    "address": "浙江省温州市瓯海区瓯越大道1999号 温州万象城 L1层 400-000-2385",
+    "district": "瓯海区"
+  },
+  {
+    "city": "武汉",
+    "name": "武汉",
+    "id": "R575",
+    "url": "https://www.apple.com.cn/retail/wuhan/",
+    "address": "武汉市江汉区解放大道 690 号 武商 MALL B 座 2F 400-638-3818",
+    "district": "江汉区"
+  },
+  {
+    "city": "长沙",
+    "name": "长沙",
+    "id": "R617",
+    "url": "https://www.apple.com.cn/retail/changsha/",
+    "address": "长沙市芙蓉区解放西路 188 号 长沙国金中心一层 400-604-3168",
+    "district": "芙蓉区"
+  },
+  {
+    "city": "厦门",
+    "name": "厦门新生活广场",
+    "id": "R644",
+    "url": "https://www.apple.com.cn/retail/xiamenlifestylecenter/",
+    "address": "厦门市思明区嘉禾路 399 号 SM 新生活广场 400-617-1383",
+    "district": "思明区"
+  },
+  {
+    "city": "福州",
+    "name": "泰禾广场",
+    "id": "R646",
+    "url": "https://www.apple.com.cn/retail/tahoeplaza/",
+    "address": "福州市晋安区竹屿路 6 号 东二环泰禾广场 400-617-1354",
+    "district": "晋安区"
+  },
+  {
+    "city": "大连",
+    "name": "大连恒隆广场",
+    "id": "R609",
+    "url": "https://www.apple.com.cn/retail/olympia66dalian/",
+    "address": "大连市西岗区五四路 66 号 400-613-9741",
+    "district": "西岗区"
+  },
+  {
+    "city": "沈阳",
+    "name": "中街大悦城",
+    "id": "R534",
+    "url": "https://www.apple.com.cn/retail/zhongjiejoycity/",
+    "address": "沈阳市大东区小东路 5 号 400-617-1252",
+    "district": "大东区"
+  },
+  {
+    "city": "沈阳",
+    "name": "沈阳万象城",
+    "id": "R576",
+    "url": "https://www.apple.com.cn/retail/mixcshenyang/",
+    "address": "沈阳市和平区青年大街 288 号 400-617-1274",
+    "district": "和平区"
+  },
+  {
+    "city": "重庆",
+    "name": "解放碑",
+    "id": "R480",
+    "url": "https://www.apple.com.cn/retail/jiefangbei/",
+    "address": "重庆市渝中区邹容路 108 号 400-617-1224",
+    "district": "渝中区"
+  },
+  {
+    "city": "重庆",
+    "name": "重庆万象城",
+    "id": "R573",
+    "url": "https://www.apple.com.cn/retail/mixcchongqing/",
+    "address": "重庆市九龙坡区谢家湾正街 55 号 400-617-1215",
+    "district": "九龙坡区"
+  },
+  {
+    "city": "重庆",
+    "name": "重庆北城天街",
+    "id": "R476",
+    "url": "https://www.apple.com.cn/retail/paradisewalkchongqing/",
+    "address": "重庆市两江新区北城天街 8 号 400-617-1240",
+    "district": "两江新区"
+  }
+]

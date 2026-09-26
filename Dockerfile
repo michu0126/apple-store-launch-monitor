@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-COPY catalog.json web_server.py container_worker.py container_main.py ./
+COPY stores.json catalog.json web_server.py container_worker.py container_main.py ./
 COPY web ./web
 RUN mkdir -p /data && useradd --create-home monitor && chown -R monitor:monitor /app /data
 USER monitor

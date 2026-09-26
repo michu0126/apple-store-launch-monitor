@@ -10,9 +10,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 
-from web_server import CATALOG, LAUNCH_DATE, set_state, worker_action, pickup_matches_date
+from web_server import CATALOG, LAUNCH_DATE, set_state, worker_action, pickup_matches_date, STORE_CATALOG
 
-STORES = ['香港广场', '南京东路', '上海环贸 iapm', '浦东', '静安', '环球港', '五角场', '七宝']
+CITIES = list(dict.fromkeys(s['city'] for s in STORE_CATALOG))
 CHUNK = 8
 
 
@@ -28,6 +28,7 @@ class Monitor:
         self.driver = None
         self.monitor_handle = None
         self.account_seen = 0
+        self.city = CITIES[0]
 
     def connect(self):
         if self.driver:
@@ -97,16 +98,19 @@ class Monitor:
             return None
         raise RuntimeError('Apple 页面没有可读取的门店取货入口')
 
-    def select_shanghai(self, dialog):
-        if re.search(r'前往此地附近的 Apple Store 零售店取货：\s*上海', dialog.text):
+    def select_city(self, dialog):
+        if re.search(r'前往此地附近的 Apple Store 零售店取货：\s*' + re.escape(self.city), dialog.text):
             return
-        button = self.text_button(r'^(选择地点|上海)$', dialog)
+        button = self.text_button(r'^(选择地点|' + '|'.join(map(re.escape, CITIES)) + r')$', dialog)
         if button:
             self.driver.execute_script('arguments[0].click()', button)
-        for label in ('上海', '黄浦区'):
+        district = next(s['district'] for s in STORE_CATALOG if s['city'] == self.city)
+        for label in (self.city, district):
+            if not label:
+                continue
             chosen = WebDriverWait(self.driver, 10).until(lambda d: self.text_button(r'^' + label + r'$'))
             self.driver.execute_script('arguments[0].click()', chosen)
-        WebDriverWait(self.driver, 10).until(lambda d: '上海' in dialog.text)
+        WebDriverWait(self.driver, 10).until(lambda d: self.city in dialog.text)
 
     def radio_text(self, element):
         return self.driver.execute_script("""
@@ -125,7 +129,7 @@ class Monitor:
                 time.sleep(.4)
                 radios = dialog.find_elements(By.CSS_SELECTOR, '[role="radio"],input[type="radio"]')
         result = []
-        for store in STORES:
+        for store in [s['name'] for s in STORE_CATALOG if s['city'] == self.city]:
             row = next((item for item in radios if 'Apple ' + store in self.radio_text(item)), None)
             if not row:
                 continue
@@ -134,9 +138,9 @@ class Monitor:
             available = '可取货' in text and not re.search(r'暂无供应|不可取货', text) and row.is_enabled() and on_day
             result.append({'store': store, 'available': bool(available), 'pickup': pickup})
         if not result and '家零售店今日无货' in dialog.text:
-            return [{'store': store, 'available': False, 'pickup': ''} for store in STORES]
+            return [{'store': s['name'], 'available': False, 'pickup': ''} for s in STORE_CATALOG if s['city'] == self.city]
         if not result:
-            raise RuntimeError('未能读取上海直营店列表')
+            raise RuntimeError('未能读取' + self.city + '直营店列表')
         return result
 
     def scan(self, product):
@@ -147,16 +151,17 @@ class Monitor:
             raise RuntimeError('Apple 拒绝了本次查询')
         dialog = self.open_availability()
         if not dialog:
-            return [{'store': store, 'available': False, 'pickup': ''} for store in STORES]
-        self.select_shanghai(dialog)
+            raise RuntimeError('当前页面没有门店取货入口，目标城市库存未知')
+        self.select_city(dialog)
         return self.read_stores(dialog)
 
     def prepare(self, product, store_name, expected_pickup):
+        self.city = next(s['city'] for s in STORE_CATALOG if s['name'] == store_name)
         self.navigate(product['url'])
         dialog = self.open_availability()
         if not dialog:
             raise RuntimeError('首发日门店取货入口已关闭')
-        self.select_shanghai(dialog)
+        self.select_city(dialog)
         stores = self.read_stores(dialog)
         store = next((item for item in stores if item['store'] == store_name), None)
         if not store or not store['available'] or store['pickup'] != expected_pickup:
@@ -211,8 +216,10 @@ class Monitor:
             worker_action({'action': 'heartbeat', 'cursor': state.get('cursor', 0), 'message': 'Docker 监控已暂停'})
             return
         start = int(state.get('cursor', 0)) % len(CATALOG)
+        city_cursor = int(state.get('city_cursor', 0)) % len(CITIES)
         checked = failures = available = 0
         for offset in range(CHUNK):
+            self.city = CITIES[city_cursor]
             product = CATALOG[(start + offset) % len(CATALOG)]
             try:
                 stores = self.scan(product)
@@ -222,7 +229,9 @@ class Monitor:
             except Exception:
                 failures += 1
         cursor = (start + CHUNK) % len(CATALOG)
-        message = f'浏览器在线 · 本轮检查 {checked}/{CHUNK} 个配置'
+        if start + CHUNK >= len(CATALOG):
+            set_state('city_cursor', (city_cursor + 1) % len(CITIES))
+        message = f'浏览器在线 · {self.city} · 本轮检查 {checked}/{CHUNK} 个配置'
         if failures:
             message += f'，{failures} 个查询失败并保持未知'
         if available:

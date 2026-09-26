@@ -21,17 +21,18 @@ function render(){
  $('notice').classList.toggle('good',online);
  const checked=new Set(data.stock.filter(s=>data.now-s.checked<300).map(s=>s.part));
  $('coverage').textContent=`最近 5 分钟已检查 ${checked.size} / ${data.catalog.length} 个配置 · ${online?'浏览器轮询中':'等待浏览器检查'} · 每条结果保留实际检查时间`;
+ if(!$('store').dataset.loaded){const groups={};for(const s of data.stores||[])(groups[s.city]??=[]).push(s);$('store').innerHTML='<option value="all">全部全国直营店</option>'+Object.entries(groups).map(([city,stores])=>`<optgroup label="${escapeHtml(city)}">${stores.map(s=>`<option value="${escapeHtml(s.name)}">${escapeHtml(city+' · '+s.name)}</option>`).join('')}</optgroup>`).join('');$('store').dataset.loaded='1';$('store-count').textContent=(data.stores||[]).length;}
  const filter=$('store').value;
- const products=data.catalog.filter(p=>model==='all'||modelOf(p)===model).filter(p=>!$('only').checked||data.stock.some(s=>s.part===p.part&&fresh(s)&&(filter==='all'||s.store.includes(filter))));
+ const products=data.catalog.filter(p=>model==='all'||modelOf(p)===model).filter(p=>!$('only').checked||data.stock.some(s=>s.part===p.part&&fresh(s)&&(filter==='all'||s.store===filter)));
  $('cards').innerHTML=products.map(p=>{
-  const rows=data.stock.filter(s=>s.part===p.part&&(filter==='all'||s.store.includes(filter)));
+  const rows=data.stock.filter(s=>s.part===p.part&&(filter==='all'||s.store===filter));
   const available=rows.filter(fresh);
   const details=rows.length?rows.map(s=>{const good=fresh(s),elapsed=Math.max(0,Math.round(data.now-s.checked));return `<div class="stock-row"><div><strong>${escapeHtml(s.store)}</strong><p>${good?escapeHtml(s.pickup):elapsed>420?'结果已过期':'目标日期暂无供应'} · ${elapsed<60?'刚刚':Math.floor(elapsed/60)+' 分钟前'}</p></div>${good?`<button class="primary" data-buy="${escapeHtml(p.part)}" data-store="${escapeHtml(s.store)}" ${online?'':'disabled'}>下单</button>`:''}</div>`}).join(''):'<div class="unknown">等待检查 · 暂无可确认的门店库存</div>';
   return `<article class="card ${available.length?'ready':''}"><div class="card-head"><span class="model">${modelOf(p)==='duo'?'IPHONE DUO':modelOf(p)==='max'?'IPHONE 18 PRO MAX':'IPHONE 18 PRO'}</span><span class="badge ${available.length?'green':''}">${available.length?'可供取货':rows.length?'暂无新鲜有货结果':'等待检查'}</span></div><h3>${escapeHtml(p.name.replace(/^iPhone\s+18\s+Pro\s*(Max)?\s*/i,'').replace(/^iPhone\s+Duo\s*/i,''))}</h3><div class="sku">${escapeHtml(p.part)}</div><div class="price">${money(p.price)}<small>官网目录价</small></div><div class="stores">${details}</div></article>`;
  }).join('')||'<div class="empty">当前筛选下没有可确认的有货选项。发现新库存后会显示在这里。</div>';
  const statuses={queued:'等待准备购物袋',checking:'正在复核目标日期库存',need_login:'请在官网登录',need_input:'请在官网完成下单',failed:'库存变化，未加入购物袋',cancelled:'已取消',completed:'购物袋已准备'};
  $('jobs').innerHTML=data.jobs.map(j=>`<article class="job"><div><strong>${escapeHtml(data.catalog.find(p=>p.part===j.part)?.name||j.part)} · ${escapeHtml(j.store)}</strong><p>${escapeHtml(statuses[j.status]||j.status)} · ${money(j.max_price)} · ${j.quantity} 台</p><p>${escapeHtml(j.message)}</p>${j.order_number?`<p>Apple 订单编号：${escapeHtml(j.order_number)}</p>`:''}</div><div>${j.status==='queued'?`<button data-cancel="${escapeHtml(j.id)}">撤回请求</button>`:''}${j.status==='awaiting_payment'&&j.payment_url?`<a href="${escapeHtml(j.payment_url)}" target="_blank" rel="noopener">前往手动付款 ↗</a>`:''}</div></article>`).join('')||'<div class="empty">尚未下单。库存出现后，你可以在商品卡片上选择门店并点击“下单”。</div>';
- for(const s of data.stock.filter(fresh)){const p=data.catalog.find(p=>p.part===s.part);notify('Apple 上海门店有货',`${p?.name} · ${s.store} · ${s.pickup}`,`${s.part}:${s.store}:${s.pickup}`)}
+ for(const s of data.stock.filter(fresh)){const p=data.catalog.find(p=>p.part===s.part);notify('Apple 全国门店有货',`${p?.name} · ${s.store} · ${s.pickup}`,`${s.part}:${s.store}:${s.pickup}`)}
  for(const j of data.jobs){if(j.status==='awaiting_payment'&&!jobSeen.has(j.id)){jobSeen.add(j.id);notify('Apple 订单已创建，请手动付款',j.message,'order:'+j.id)}}
 }
 async function refresh(){try{const r=await fetch('/api/state');if(!r.ok)throw Error();data=await r.json();render()}catch{$('connection').textContent='页面服务连接中断';$('notice').textContent='无法连接本机服务，库存状态不可用。请重新启动页面服务。';document.querySelectorAll('[data-buy]').forEach(b=>b.disabled=true)}}

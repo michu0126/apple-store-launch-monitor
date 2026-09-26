@@ -16,6 +16,7 @@ TOKEN = secrets.token_urlsafe(32)
 LAUNCH_DATE = os.environ.get('PICKUP_DATE', '2026/09/18')
 CATALOG = json.loads((ROOT / 'catalog.json').read_text(encoding='utf-8'))
 PRODUCTS = {p['part']: p for p in CATALOG}
+STORE_CATALOG = json.loads((ROOT / 'stores.json').read_text(encoding='utf-8'))
 
 
 def pickup_matches_date(text):
@@ -62,7 +63,7 @@ def get_state(con):
 
 def snapshot():
     with connect() as con:
-        return dict(catalog=CATALOG, launch_date=LAUNCH_DATE, stock=[dict(r) for r in con.execute('SELECT * FROM stock')],
+        return dict(catalog=CATALOG, stores=STORE_CATALOG, launch_date=LAUNCH_DATE, stock=[dict(r) for r in con.execute('SELECT * FROM stock')],
                     jobs=[dict(r) for r in con.execute('SELECT * FROM jobs ORDER BY created DESC LIMIT 30')],
                     state=get_state(con), now=time.time())
 
@@ -113,7 +114,7 @@ def worker_action(command):
         part = command.get('part')
         if part not in PRODUCTS:
             raise ValueError('未知商品编号')
-        allowed = {'五角场', '香港广场', '南京东路', '上海环贸 iapm', '浦东', '静安', '环球港', '七宝'}
+        allowed = {store['name'] for store in STORE_CATALOG}
         now = time.time()
         with connect() as con:
             for item in command.get('stores', []):

@@ -1,5 +1,7 @@
 # Windows 桌面版
 
+1.2.0：门店扩展为中国大陆 25 个城市、49 家 Apple 直营店（2026/09/27 同步自 https://www.apple.com.cn/retail/storelist/）。门店筛选按城市分组，默认全国逐城市轮询；一轮全国检查耗时显著增加，未检查或过期结果不视为有货。香港、澳门和台湾使用不同地区商城，不包含在本次中国大陆目录中。全国官网地点选择流程尚未逐城市实测。
+
 双击 `AppleStoreMonitor.exe`，选择电脑已安装的 Edge 或 Chrome，以及目标取货日期，点击“启动监控”。程序会在默认浏览器打开本机监控页面，并启动所选浏览器的专用窗口执行检查。无需 Docker、Firefox 或 Python。
 
 首次运行需联网下载匹配的 WebDriver 驱动（不是浏览器）。程序不接管日常浏览器窗口，也不复制日常浏览器的密码或 Cookie；请通过页面“打开账号页”在专用窗口登录 Apple。登录资料保存在 `%LOCALAPPDATA%\AppleStoreMonitor\profile-Edge` 或 `profile-Chrome`。
