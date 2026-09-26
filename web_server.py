@@ -13,9 +13,21 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parent
 DB = Path(os.environ.get('DB_PATH', ROOT / 'dashboard.sqlite3'))
 TOKEN = secrets.token_urlsafe(32)
-LAUNCH_DATE = '2026/09/18'
+LAUNCH_DATE = os.environ.get('PICKUP_DATE', '2026/09/18')
 CATALOG = json.loads((ROOT / 'catalog.json').read_text(encoding='utf-8'))
 PRODUCTS = {p['part']: p for p in CATALOG}
+
+
+def pickup_matches_date(text):
+    target = datetime.datetime.strptime(LAUNCH_DATE, '%Y/%m/%d').date()
+    explicit = re.search(r'(\d{4})[/-](\d{1,2})[/-](\d{1,2})', text)
+    if explicit:
+        return tuple(map(int, explicit.groups())) == (target.year, target.month, target.day)
+    month_day = re.search(r'(\d{1,2})\s*月\s*(\d{1,2})\s*日', text)
+    if month_day:
+        return tuple(map(int, month_day.groups())) == (target.month, target.day)
+    today = datetime.date.today()
+    return ('今日' in text and target == today) or ('明日' in text and target == today + datetime.timedelta(days=1))
 
 
 def connect():
@@ -109,9 +121,7 @@ def worker_action(command):
                 if store not in allowed or type(item.get('available')) is not bool:
                     continue
                 pickup = str(item.get('pickup', ''))[:100]
-                on_launch_day = bool(re.search(r'(?:2026[/-]0?9[/-]18|0?9\s*月\s*18\s*日)', pickup))
-                if datetime.date.today() == datetime.date(2026, 9, 18) and '今日' in pickup:
-                    on_launch_day = True
+                on_launch_day = pickup_matches_date(pickup)
                 con.execute('INSERT OR REPLACE INTO stock VALUES (?,?,?,?,?,?)',
                             (part, store, int(item['available'] and on_launch_day), pickup,
                              PRODUCTS[part]['price'], now))

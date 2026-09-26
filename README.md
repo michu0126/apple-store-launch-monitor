@@ -1,5 +1,11 @@
 # Apple 上海直营店首发取货监控
 
+## Windows EXE 桌面版
+
+桌面版使用电脑已安装的 Edge / Chrome，无需 Docker 或内置 Firefox。双击 `AppleStoreMonitor.exe`，选择浏览器和取货日期，点击启动。首次联网获取浏览器驱动；Apple 登录在独立浏览器配置中完成。详情见 [DESKTOP.md](DESKTOP.md)。运行 `build-desktop.ps1` 可生成 `dist/AppleStoreMonitor.exe`。
+
+以下为 Docker 版本说明。
+
 Docker Compose 在本机持续检查 Apple 中国官网，只把 **2026 年 9 月 18 日** 上海直营店可取货视为命中。监控 iPhone 18 Pro、iPhone 18 Pro Max、iPhone Duo 的全部 40 个颜色与容量配置。
 
 监控由容器 Firefox 执行，不依赖 Codex 定时任务，不消耗 Codex token。管理页面监听 `127.0.0.1:8765`，Firefox 的可视 noVNC 页面监听 `127.0.0.1:7900`，两个端口都不会暴露到局域网。

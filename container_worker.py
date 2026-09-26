@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 
-from web_server import CATALOG, LAUNCH_DATE, set_state, worker_action
+from web_server import CATALOG, LAUNCH_DATE, set_state, worker_action, pickup_matches_date
 
 STORES = ['香港广场', '南京东路', '上海环贸 iapm', '浦东', '静安', '环球港', '五角场', '七宝']
 CHUNK = 8
@@ -19,9 +19,7 @@ CHUNK = 8
 def launch_pickup(text):
     match = re.search(r'(?:星期.\s*)?(?:(?:\d{4}[/-]\d{1,2}[/-]\d{1,2})|(?:\d{1,2}\s*月\s*\d{1,2}\s*日)|今日|明日)[^，。；;]*?可取货', text)
     pickup = match.group(0) if match else ''
-    on_day = bool(re.search(r'(?:2026[/-]0?9[/-]18|0?9\s*月\s*18\s*日)', pickup))
-    if datetime.date.today() == datetime.date(2026, 9, 18) and '今日' in pickup:
-        on_day = True
+    on_day = pickup_matches_date(pickup)
     return pickup, on_day
 
 
@@ -191,7 +189,8 @@ class Monitor:
                 raise RuntimeError('商品目录中已找不到该配置')
             self.prepare(product, claimed['store'], claimed['pickup'])
             worker_action({'action': 'job', 'id': claimed['id'], 'status': 'completed',
-                           'message': '首发日库存已复核，商品已加入 Apple 购物袋。请在容器 Firefox 中核对并完成提交与付款。'})
+                           'message': '目标日期库存已复核，商品已加入 Apple 购物袋。请在执行下单的浏览器窗口核对并完成提交与付款。'})
+            self.monitor_handle = None
         except Exception as error:
             worker_action({'action': 'job', 'id': claimed['id'], 'status': 'failed', 'message': '复核失败：' + str(error)[:420]})
         return True
@@ -217,7 +216,7 @@ class Monitor:
             except Exception:
                 failures += 1
         cursor = (start + CHUNK) % len(CATALOG)
-        message = f'Docker Firefox 在线 · 本轮检查 {checked}/{CHUNK} 个配置'
+        message = f'浏览器在线 · 本轮检查 {checked}/{CHUNK} 个配置'
         if failures:
             message += f'，{failures} 个查询失败并保持未知'
         if available:

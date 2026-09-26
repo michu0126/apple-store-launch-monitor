@@ -5,3 +5,7 @@ data/
 chromium-profile/
 runtime/
 .env
+.venv/
+build/
+dist/
+*.spec
