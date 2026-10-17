@@ -13,8 +13,9 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parent
 DB = Path(os.environ.get('DB_PATH', ROOT / 'dashboard.sqlite3'))
 TOKEN = secrets.token_urlsafe(32)
-LAUNCH_DATE = os.environ.get('PICKUP_DATE', '2026/09/18')
-CATALOG = json.loads((ROOT / 'catalog.json').read_text(encoding='utf-8'))
+LAUNCH_DATE = os.environ.get('PICKUP_DATE', '2026/10/23')
+CATALOG = [p for p in json.loads((ROOT / 'catalog.json').read_text(encoding='utf-8'))
+           if 'duo' in p['name'].lower()]
 PRODUCTS = {p['part']: p for p in CATALOG}
 STORE_CATALOG = json.loads((ROOT / 'stores.json').read_text(encoding='utf-8'))
 

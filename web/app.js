@@ -1,4 +1,4 @@
-let sessionToken, data, model='all', selection, notifying=false;
+let sessionToken, data, model='duo', selection, notifying=false;
 const seen = new Set(), jobSeen = new Set();
 const $ = id => document.getElementById(id);
 const escapeHtml = x => String(x ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

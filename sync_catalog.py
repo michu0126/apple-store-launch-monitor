@@ -21,7 +21,7 @@ COLORS = {
 
 def catalog():
     rows = {}
-    for family in ('iphone-18-pro', 'iphone-duo'):
+    for family in ('iphone-duo',):
         url = 'https://www.apple.com.cn/shop/buy-iphone/' + family
         with urllib.request.urlopen(url, timeout=25) as response:
             body = response.read()

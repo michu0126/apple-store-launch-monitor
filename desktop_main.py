@@ -73,7 +73,7 @@ def main():
     browser_box = ttk.Combobox(row, textvariable=choice, values=list(available), state='readonly', width=12)
     browser_box.pack(side='left', padx=10)
     ttk.Label(row, text='取货日期 YYYY/MM/DD').pack(side='left', padx=(15, 5))
-    date = tk.StringVar(value=settings.get('date', datetime.date.today().strftime('%Y/%m/%d')))
+    date = tk.StringVar(value='2026/10/23')
     date_box = ttk.Entry(row, textvariable=date, width=12)
     date_box.pack(side='left')
     status = tk.StringVar(value='就绪。首次启动会联网获取匹配的浏览器驱动。')
@@ -94,7 +94,7 @@ def main():
             return
         date.set(target.strftime('%Y/%m/%d'))
         settings_path.write_text(json.dumps({'browser': choice.get(), 'date': date.get()}), encoding='utf-8')
-        os.environ['DB_PATH'] = str(DATA / ('monitor-' + target.isoformat() + '.sqlite3'))
+        os.environ['DB_PATH'] = str(DATA / ('duo-' + target.isoformat() + '.sqlite3'))
         os.environ['PICKUP_DATE'] = date.get()
         start_button.config(state='disabled')
         browser_box.config(state='disabled')
