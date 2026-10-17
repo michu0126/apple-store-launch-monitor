@@ -2,6 +2,8 @@
 
 ## Windows EXE 桌面版
 
+1.3.0 桌面版改为直接查询库存接口，普通监控不启动浏览器；仅登录、确认后的复核及购物袋准备调用本机 Edge / Chrome。最多 2 个并发，查询失败自动退避。当前环境真实请求返回 HTTP 541，实际接口查询尚未验证成功，不能保证全国扫描耗时。详细行为及限制见 [DESKTOP.md](DESKTOP.md)。
+
 桌面版使用电脑已安装的 Edge / Chrome，无需 Docker 或内置 Firefox。双击 `AppleStoreMonitor.exe`，选择浏览器和取货日期，点击启动。首次联网获取浏览器驱动；Apple 登录在独立浏览器配置中完成。详情见 [DESKTOP.md](DESKTOP.md)。运行 `build-desktop.ps1` 可生成 `dist/AppleStoreMonitor.exe`。
 
 以下为 Docker 版本说明。

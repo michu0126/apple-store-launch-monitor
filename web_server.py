@@ -6,6 +6,7 @@ import re
 import secrets
 import sqlite3
 import time
+from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -18,6 +19,7 @@ CATALOG = [p for p in json.loads((ROOT / 'catalog.json').read_text(encoding='utf
            if 'duo' in p['name'].lower()]
 PRODUCTS = {p['part']: p for p in CATALOG}
 STORE_CATALOG = json.loads((ROOT / 'stores.json').read_text(encoding='utf-8'))
+STOCK_MAX_AGE = int(os.environ.get('STOCK_MAX_AGE', '420'))
 
 
 def pickup_matches_date(text):
@@ -32,10 +34,15 @@ def pickup_matches_date(text):
     return ('今日' in text and target == today) or ('明日' in text and target == today + datetime.timedelta(days=1))
 
 
+@contextmanager
 def connect():
     con = sqlite3.connect(DB, timeout=10)
     con.row_factory = sqlite3.Row
-    return con
+    try:
+        with con:
+            yield con
+    finally:
+        con.close()
 
 
 def initialize():
@@ -64,7 +71,7 @@ def get_state(con):
 
 def snapshot():
     with connect() as con:
-        return dict(catalog=CATALOG, stores=STORE_CATALOG, launch_date=LAUNCH_DATE, stock=[dict(r) for r in con.execute('SELECT * FROM stock')],
+        return dict(catalog=CATALOG, stores=STORE_CATALOG, launch_date=LAUNCH_DATE, stock_max_age=STOCK_MAX_AGE, stock=[dict(r) for r in con.execute('SELECT * FROM stock')],
                     jobs=[dict(r) for r in con.execute('SELECT * FROM jobs ORDER BY created DESC LIMIT 30')],
                     state=get_state(con), now=time.time())
 
@@ -84,7 +91,7 @@ def create_job(body):
         if time.time() - state.get('worker_seen', 0) > 180:
             raise ValueError('下单执行器离线，请等待重新连接。')
         stock = con.execute('SELECT * FROM stock WHERE part=? AND store=?', (part, store)).fetchone()
-        if not stock or not stock['available'] or time.time() - stock['checked'] > 420:
+        if not stock or not stock['available'] or time.time() - stock['checked'] > STOCK_MAX_AGE:
             raise ValueError('库存已过期或不可取货，请等待最新检查。')
         if body.get('price') != stock['price'] or body.get('pickup') != stock['pickup']:
             raise ValueError('价格或取货时间已变化，请重新核对。')
@@ -217,7 +224,15 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(body, dict):
                 raise ValueError('请求无效')
             if self.path == '/api/orders':
-                return self.reply(200, create_job(body))
+                job = create_job(body)
+                set_state('monitoring', False)
+                return self.reply(200, job)
+            if self.path == '/api/priority':
+                store = body.get('store', '')
+                if store and store not in {s['name'] for s in STORE_CATALOG}:
+                    raise ValueError('未知门店')
+                set_state('priority_store', store)
+                return self.reply(200, {'ok': True})
             if self.path == '/api/monitor':
                 if type(body.get('enabled')) is not bool:
                     raise ValueError('监控参数无效')

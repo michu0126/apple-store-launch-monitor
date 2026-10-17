@@ -76,7 +76,7 @@ def main():
     date = tk.StringVar(value='2026/10/23')
     date_box = ttk.Entry(row, textvariable=date, width=12)
     date_box.pack(side='left')
-    status = tk.StringVar(value='就绪。首次启动会联网获取匹配的浏览器驱动。')
+    status = tk.StringVar(value='就绪。直接查询库存；登录或确认下单时才打开浏览器。')
     ttk.Label(panel, textvariable=status, wraplength=560).pack(anchor='w', pady=20)
     buttons = ttk.Frame(panel)
     buttons.pack(fill='x')
@@ -96,15 +96,17 @@ def main():
         settings_path.write_text(json.dumps({'browser': choice.get(), 'date': date.get()}), encoding='utf-8')
         os.environ['DB_PATH'] = str(DATA / ('duo-' + target.isoformat() + '.sqlite3'))
         os.environ['PICKUP_DATE'] = date.get()
+        os.environ['STOCK_MAX_AGE'] = '90'
         start_button.config(state='disabled')
         browser_box.config(state='disabled')
         date_box.config(state='disabled')
-        status.set('正在启动本机页面和浏览器，请稍候…')
+        status.set('正在启动库存查询和监控页面，请稍候…')
         browser_name, binary = choice.get(), str(available[choice.get()])
 
         def work():
             server = None
             monitor = None
+            stock_monitor = None
             try:
                 from selenium import webdriver
                 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -115,6 +117,7 @@ def main():
                 import container_worker
                 container_worker.CHUNK = 1
                 from web_server import Handler, ThreadingHTTPServer, initialize, set_state, worker_action
+                from stock_client import FastStockMonitor
 
                 class DesktopMonitor(Monitor):
                     scanning = False
@@ -160,12 +163,14 @@ def main():
                         self.driver = factory(options=options, service=service)
                         self.driver.set_page_load_timeout(12)
                         self.monitor_handle = self.driver.current_window_handle
-                        events.put(('status', browser_name + ' 已连接，正在监控。'))
+                        set_state('browser_message', browser_name + ' 已连接，可以在此窗口登录或结账。')
 
                 initialize()
                 set_state('worker_seen', 0)
                 set_state('desktop_browser', browser_name)
-                set_state('monitoring', False)
+                set_state('monitoring', True)
+                set_state('stock_last_error', '')
+                set_state('browser_message', '登录或确认下单时将打开 ' + browser_name)
                 runtime['set_state'] = set_state
                 runtime['worker_action'] = worker_action
                 server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
@@ -173,30 +178,28 @@ def main():
                 threading.Thread(target=server.serve_forever, daemon=True).start()
                 events.put(('ready', runtime['url']))
                 monitor = DesktopMonitor()
+                monitor.account_seen = float(worker_action({'action': 'status'})['state'].get('account_requested', 0) or 0)
                 runtime['monitor'] = monitor
-                monitor.connect()
-                set_state('monitoring', True)
-                next_scan = 0
+                stock_monitor = FastStockMonitor(stop)
+                stock_monitor.start()
                 while not stop.is_set():
                     try:
                         state = worker_action({'action': 'status'})
                         monitor.open_account(state['state'])
                         if monitor.handle_job(state):
                             set_state('monitoring', False)
-                        elif not state['state'].get('monitoring', True):
-                            worker_action({'action': 'heartbeat', 'message': '监控已暂停，可以在浏览器中登录或操作。'})
-                        elif time.monotonic() >= next_scan:
-                            monitor.cycle()
-                            next_scan = time.monotonic() + 8
                     except Exception as error:
                         logging.exception('Browser monitoring failed')
-                        worker_action({'action': 'heartbeat', 'message': '本机浏览器连接或检查失败：' + str(error)[:300]})
+                        set_state('browser_message', '浏览器操作失败：' + str(error)[:250])
                         events.put(('status', '浏览器启动或检查失败，详见监控页面及 desktop.log。'))
                     stop.wait(.5)
             except Exception as error:
                 logging.exception('Desktop startup failed')
                 events.put(('error', str(error)))
             finally:
+                stop.set()
+                if stock_monitor:
+                    stock_monitor.join()
                 if monitor and monitor.driver:
                     try:
                         monitor.driver.quit()
@@ -240,7 +243,7 @@ def main():
                 kind, value = events.get_nowait()
                 if kind == 'ready':
                     open_button.config(state='normal')
-                    status.set('监控页面已启动；正在连接 ' + choice.get() + '。')
+                    status.set('监控页面已启动，正在直接查询库存。')
                     webbrowser.open(value)
                 elif kind == 'error':
                     status.set('启动失败：' + value)
@@ -264,6 +267,7 @@ if __name__ == '__main__':
         assert CATALOG
         from selenium.webdriver.common.selenium_manager import SeleniumManager
         assert SeleniumManager._get_binary().is_file()
+        from stock_client import StockClient, parse_stock
         (DATA / 'self-test.json').write_text(json.dumps({'ok': True, 'browsers': list(browsers()), 'catalog_count': len(CATALOG)}), encoding='utf-8')
     else:
         main()

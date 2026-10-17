@@ -164,7 +164,7 @@ class Monitor:
         self.select_city(dialog)
         stores = self.read_stores(dialog)
         store = next((item for item in stores if item['store'] == store_name), None)
-        if not store or not store['available'] or store['pickup'] != expected_pickup:
+        if not store or not store['available'] or not pickup_matches_date(expected_pickup):
             raise RuntimeError('首发日门店库存或取货时间已变化')
         radios = dialog.find_elements(By.CSS_SELECTOR, '[role="radio"],input[type="radio"]')
         row = next((item for item in radios if 'Apple ' + store_name in self.radio_text(item)), None)
